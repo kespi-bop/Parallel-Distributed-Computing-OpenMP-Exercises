@@ -26,10 +26,11 @@ int main()
     t1 = omp_get_wtime();
     R = maxsum(N, N, A, NT);
     t2 = omp_get_wtime();
+    double exec_time = t2 - t1;
 
     printf("\nIl valore massimo tra le sommatorie delle radici quadrate delle righe e’: %f\n", R);
 
-    printf("\nil tempo di esecuzione e’ %f secondi.\n ", t2 - t1);
+    printf("\nil tempo di esecuzione e’ %f secondi.\n ", exec_time);
 
     free(A);
     return 0;
