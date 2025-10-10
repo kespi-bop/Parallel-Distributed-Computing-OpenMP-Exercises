@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <time.h>
 
-
 double get_cur_time();
 
 double maxsum(int N, int LD, double *A, int NT);
@@ -10,17 +9,23 @@ double maxsum(int N, int LD, double *A, int NT);
 double *instanceMatrix(int LD, double *A);
 double *fillMatrix(int N, int LD, double *A);
 void printMatrix(int N, int LD, double *A);
+void printExecTimes(double ExecTime[4][7], int numThreads[4]);
+void calculateAndPrintSpeedUp(double ExecTime[4][7], double *SpeedUp, int numThreads[4]);
+void calculateAndPrintEfficiency(double *SpeedUp, int numThreads[4]);
 
 int main()
 {
-/*         srand(time(NULL)); */
+    /*         srand(time(NULL)); */
     int i, j, N;
     int LD = 5600;
-    double t1, t2, R, exec_time;
-    double *A;
     int matrixDimension[7] = {800, 1600, 2400, 3200, 4000, 4800, 5600};
     int numThreads[4] = {1, 2, 4, 8};
+    double t1, t2, R, exec_time;
+    double *A, *SpeedUp;
+    double ExecTime[4][7];
+
     A = instanceMatrix(LD, A);
+    SpeedUp = instanceMatrix(7, SpeedUp);
 
     for (i = 0; i < 7; i++)
     {
@@ -33,13 +38,22 @@ int main()
             R = maxsum(N, LD, A, numThreads[j]);
             t2 = get_cur_time();
             exec_time = t2 - t1;
-            printf("\n - Con %d thread il tempo di esecuzione e’ %f secondi (R = %f) .\n ", numThreads[j], exec_time, R);
+            ExecTime[j][i] = exec_time;
+            printf("\n - Con %d thread il tempo di esecuzione e’ %f secondi (R = %f).\n ", numThreads[j], exec_time, R);
         }
     }
     printf("\n\n");
 
-/*         printMatrix(N, LD, A); */
+    printExecTimes(ExecTime, numThreads);
 
+    calculateAndPrintSpeedUp(ExecTime, SpeedUp, numThreads);
+
+    calculateAndPrintEfficiency(SpeedUp, numThreads);
+
+    /*         printMatrix(N, LD, A); */
+
+    printf("\n\n");
+    free(SpeedUp);
     free(A);
     return 0;
 }
@@ -77,4 +91,51 @@ void printMatrix(int N, int LD, double *A)
     }
 }
 
+void printExecTimes(double ExecTime[4][7], int numThreads[4])
+{
+    int i, j;
+    printf("Matrice dei tempi di esecuzione (in secondi):\n");
+    printf("Threads\\Dimensione\t800\t1600\t2400\t3200\t4000\t4800\t5600\n");
+    for (i = 0; i < 4; i++)
+    {
+        printf("%d\t\t\t", numThreads[i]);
+        for (j = 0; j < 7; j++)
+        {
+            printf("%.4f\t", ExecTime[i][j]);
+        }
+        printf("\n");
+    }
+}
 
+void calculateAndPrintSpeedUp(double ExecTime[4][7], double *SpeedUp, int numThreads[4])
+{
+    int i, j;
+    printf("\nMatrice degli SpeedUp (in secondi):\n");
+    printf("Threads\\Dimensione\t800\t1600\t2400\t3200\t4000\t4800\t5600\n");
+    for (i = 0; i < 4; i++)
+    {
+        printf("%d\t\t\t", numThreads[i]);
+        for (j = 0; j < 7; j++)
+        {
+            SpeedUp[i * 7 + j] = ExecTime[0][j] / ExecTime[i][j];
+            printf("%.4f\t", SpeedUp[i * 7 + j]);
+        }
+        printf("\n");
+    }
+}
+
+void calculateAndPrintEfficiency(double *SpeedUp, int numThreads[4])
+{
+    int i, j;
+    printf("\nMatrice delle Efficienze (in percentuale):\n");
+    printf("Threads\\Dimensione\t800\t1600\t2400\t3200\t4000\t4800\t5600\n");
+    for (i = 0; i < 4; i++)
+    {
+        printf("%d\t\t\t", numThreads[i]);
+        for (j = 0; j < 7; j++)
+        {
+            printf("%.2f\t", (SpeedUp[i * 7 + j] / numThreads[i]) );
+        }
+        printf("\n");
+    }
+}
