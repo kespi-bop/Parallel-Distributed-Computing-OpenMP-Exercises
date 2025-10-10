@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 #include <omp.h>
 
@@ -27,7 +25,7 @@ double maxsum(int N, int LD, double *A, int NT)
             {
                 sum = sum + sqrt(A[i * LD + j]);
             }
-            /*             printf("Thread %d: somma riga %d = %f\n", id, i, sum); */
+
             if (sum > maxRow)
             {
                 maxRow = sum;

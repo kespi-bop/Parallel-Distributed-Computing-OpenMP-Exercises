@@ -1,7 +1,6 @@
-#include <unistd.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
+#include <time.h>
 
 
 double get_cur_time();
@@ -14,7 +13,7 @@ void printMatrix(int N, int LD, double *A);
 
 int main()
 {
-    /*     srand(time(NULL)); */
+/*         srand(time(NULL)); */
     int i, j, N;
     int LD = 5600;
     double t1, t2, R, exec_time;
