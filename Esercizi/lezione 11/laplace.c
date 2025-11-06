@@ -86,11 +86,99 @@ void laplace(float *A, float *B, float *daprev, float *danext, int N, int LD, in
             }
         }
     }
-
-    return;
 }
 
 void laplace_nb(float *A, float *B, float *daprev, float *danext,
                 int N, int LD, int Niter)
 {
+    int nproc, myid, i, j, iter;
+    MPI_Status status;
+    MPI_Request request[4];
+
+    MPI_Comm_size(MPI_COMM_WORLD, &nproc);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+
+    for (iter = 0; iter < Niter; iter++)
+    {
+
+        if (myid != 0)
+        {
+            for (j = 0; j < N; j++)
+            {
+                daprev[j] = A[j];
+            }
+            MPI_Isend(daprev, N, MPI_FLOAT, myid - 1, iter, MPI_COMM_WORLD, &request[0]);
+            MPI_Irecv(daprev, N, MPI_FLOAT, myid - 1, iter, MPI_COMM_WORLD, &request[1]);
+        }
+
+        if (myid != nproc - 1)
+        {
+            for (j = 0; j < N; j++)
+            {
+                danext[j] = A[(N / nproc - 1) * LD + j];
+            }
+            MPI_Isend(danext, N, MPI_FLOAT, myid + 1, iter, MPI_COMM_WORLD, &request[2]);
+            MPI_Irecv(danext, N, MPI_FLOAT, myid + 1, iter, MPI_COMM_WORLD, &request[3]);
+        }
+
+        for (i = 1; i < N / nproc - 1; i++)
+        {
+            for (j = 1; j < N - 1; j++)
+            {
+                B[(i * LD) + j] = (A[(i + 1) * LD + j] + A[(i - 1) * LD + j] + A[(i * LD) + (j - 1)] + A[(i * LD) + (j + 1)]) * 0.25;
+            }
+        }
+
+        if (myid != 0)
+        {
+            MPI_Wait(&request[1], &status);
+            for (j = 1; j < N - 1; j++)
+            {
+                B[j] = (daprev[j] + A[1 * LD + j] + A[j - 1] + A[j + 1]) * 0.25;
+            }
+        }
+
+        if (myid != nproc - 1)
+        {
+            MPI_Wait(&request[3], &status);
+            for (j = 1; j < N - 1; j++)
+            {
+                B[((N / nproc - 1) * LD) + j] = (danext[j] + A[((N / nproc - 1) - 1) * LD + j] + A[((N / nproc - 1) * LD) + (j - 1)] + A[((N / nproc - 1) * LD) + (j + 1)]) * 0.25;
+            }
+        }
+
+        if (myid != 0)
+        {
+            for (j = 1; j < N - 1; j++)
+            {
+                A[j] = B[j];
+            }
+        }
+
+        for (i = 1; i < N / nproc - 1; i++)
+        {
+            for (j = 1; j < N - 1; j++)
+            {
+                A[(i * LD) + j] = B[(i * LD) + j];
+            }
+        }
+
+        if (myid != nproc - 1)
+        {
+            for (j = 1; j < N - 1; j++)
+            {
+                A[((N / nproc - 1) * LD) + j] = B[((N / nproc - 1) * LD) + j];
+            }
+        }
+    }
+
+    if (myid != 0)
+    {
+        MPI_Wait(&request[0], &status);
+    }
+
+    if (myid != nproc - 1)
+    {
+        MPI_Wait(&request[2], &status);
+    }
 }
