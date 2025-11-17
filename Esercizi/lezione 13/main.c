@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 #include "c_timer.h"
 
 double *instanceMatrix(int LD, double *A);
@@ -256,47 +257,54 @@ void calculateAllMatmatAndPrintAllExecTimes(int ldA, int ldB, int ldC,
                                             double *A, double *B, double *C,
                                             int N1, int N2, int N3)
 {
-    double t1, t2, exec_time;
+    double t1, t2, exec_time, Gflops, Nflops = 2.0 * N1 * N2 * N3, exponent = pow(10, 9);;
 
     t1 = get_cur_time();
     matmatijk(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("1 - matmatijk execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("1 - matmatijk execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
     t1 = get_cur_time();
     matmatkji(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("2 - matmatkji execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("2 - matmatkji execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
     t1 = get_cur_time();
     matmatikj(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("3 - matmatikj execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("3 - matmatikj execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
     t1 = get_cur_time();
     matmatjik(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("4 - matmatjik execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("4 - matmatjik execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
     t1 = get_cur_time();
     matmatkij(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("5 - matmatkij execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("5 - matmatkij execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
     t1 = get_cur_time();
     matmatjki(ldA, ldB, ldC, A, B, C, N1, N2, N3);
     t2 = get_cur_time();
     exec_time = t2 - t1;
-    printf("6 - matmatjki execution time: %.6f seconds\n", exec_time);
+    Gflops = Nflops / exec_time / exponent;
+    printf("6 - matmatjki execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
+
 }
