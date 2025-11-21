@@ -3,35 +3,12 @@
 #include <time.h>
 #include <math.h>
 #include "c_timer.h"
+#include "matmat.h"
 
 double *instanceMatrix(int LD, double *A);
 double *initializeMatrixToZero(int R, int C, int LD, double *A);
 double *fillMatrix(int R, int C, int LD, double *A);
 void printMatrix(int R, int C, int LD, double *A);
-
-void matmatijk(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
-
-void matmatkji(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
-
-void matmatikj(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
-
-void matmatjik(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
-
-void matmatkij(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
-
-void matmatkji(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3);
 
 void printMatmat(int ldA, int ldB, int ldC,
                  double *A, double *B, double *C,
@@ -39,7 +16,7 @@ void printMatmat(int ldA, int ldB, int ldC,
 
 void calculateAllMatmatAndPrintAllExecTimes(int ldA, int ldB, int ldC,
                                             double *A, double *B, double *C,
-                                            int N1, int N2, int N3);
+                                            int N1, int N2, int N3, int dbA, int dbB, int dbC);
 
 int main()
 {
@@ -47,6 +24,7 @@ int main()
     int matrixDimensions[6] = {256, 512, 768, 1024, 1280, 1536};
     int i, j, N1, N2, N3;
     int ldA = 2000, ldB = 2000, ldC = 2000;
+    int dbA = 4, dbB = 4, dbC = 4;
     double *A, *B, *C;
 
     A = instanceMatrix(ldA, A);
@@ -64,7 +42,7 @@ int main()
         N3 = matrixDimensions[i];
 
         printf("\n\nTempo di esecuzione per matrice C[%d x %d]:\n", N1, N3);
-        calculateAllMatmatAndPrintAllExecTimes(ldA, ldB, ldC, A, B, C, N1, N2, N3);
+        calculateAllMatmatAndPrintAllExecTimes(ldA, ldB, ldC, A, B, C, N1, N2, N3, dbA, dbB, dbC);
     }
 
     /* printMatmat(ldA, ldB, ldC, A, B, C, N1, N2, N3); */
@@ -122,108 +100,6 @@ void printMatrix(int R, int C, int LD, double *A)
     }
 }
 
-void matmatijk(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int i, j, k;
-    for (i = 0; i < N1; i++)
-    {
-        for (j = 0; j < N3; j++)
-        {
-            for (k = 0; k < N2; k++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatkji(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int k, i, j;
-    for (k = 0; k < N2; k++)
-    {
-        for (i = 0; i < N1; i++)
-        {
-            for (j = 0; j < N3; j++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatikj(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int i, k, j;
-    for (i = 0; i < N1; i++)
-    {
-        for (k = 0; k < N2; k++)
-        {
-            for (j = 0; j < N3; j++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatjik(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int j, i, k;
-    for (j = 0; j < N3; j++)
-    {
-        for (i = 0; i < N1; i++)
-        {
-            for (k = 0; k < N2; k++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatkij(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int k, i, j;
-    for (k = 0; k < N2; k++)
-    {
-        for (i = 0; i < N1; i++)
-        {
-            for (j = 0; j < N3; j++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatjki(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int j, k, i;
-    for (j = 0; j < N3; j++)
-    {
-        for (k = 0; k < N2; k++)
-        {
-            for (i = 0; i < N1; i++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
 void printMatmat(int ldA, int ldB, int ldC,
                  double *A, double *B, double *C,
                  int N1, int N2, int N3)
@@ -255,9 +131,10 @@ void printMatmat(int ldA, int ldB, int ldC,
 
 void calculateAllMatmatAndPrintAllExecTimes(int ldA, int ldB, int ldC,
                                             double *A, double *B, double *C,
-                                            int N1, int N2, int N3)
+                                            int N1, int N2, int N3, int dbA, int dbB, int dbC)
 {
-    double t1, t2, exec_time, Gflops, Nflops = 2.0 * N1 * N2 * N3, exponent = pow(10, 9);;
+    double t1, t2, exec_time, Gflops, Nflops = 2.0 * N1 * N2 * N3, exponent = pow(10, 9);
+    ;
 
     t1 = get_cur_time();
     matmatijk(ldA, ldB, ldC, A, B, C, N1, N2, N3);
@@ -307,4 +184,11 @@ void calculateAllMatmatAndPrintAllExecTimes(int ldA, int ldB, int ldC,
     printf("6 - matmatjki execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
     C = initializeMatrixToZero(N1, N3, ldC, C);
 
+    t1 = get_cur_time();
+    matmatblock(ldA, ldB, ldC, A, B, C, N1, N2, N3, dbA, dbB, dbC);
+    t2 = get_cur_time();
+    exec_time = t2 - t1;
+    Gflops = Nflops / exec_time / exponent;
+    printf("7 - matmatblock execution time: %.6f seconds [%.6f Gflops]\n", exec_time, Gflops);
+    C = initializeMatrixToZero(N1, N3, ldC, C);
 }
