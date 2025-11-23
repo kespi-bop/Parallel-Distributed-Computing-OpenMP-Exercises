@@ -29,4 +29,7 @@ void matmatjki(int ldA, int ldB, int ldC,
 
 void matmatblock(int ldA, int ldB, int ldC, double *A, double *B, double *C, int N1, int N2, int N3, int dbA, int dbB, int dbC);
 
+void matmatthread(int ldA, int ldB, int ldC, double *A, double *B, double *C,
+                  int N1, int N2, int N3, int dbA, int dbB, int dbC, int NTROW, int NTCOL);
+
 #endif // C_MATMAT_H
