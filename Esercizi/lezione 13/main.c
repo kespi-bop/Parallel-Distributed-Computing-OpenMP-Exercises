@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include "c_timer.h"
-#include "matmat.h"
+#include "matmatthread.h"
 
 double *instanceMatrix(int LD, double *A);
 double *initializeMatrixToZero(int R, int C, int LD, double *A);
