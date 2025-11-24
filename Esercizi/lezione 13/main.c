@@ -70,14 +70,6 @@ int main()
         }
     }
 
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 4; j++)
-        {
-            printf("execTime[%d][%d]=%f\n", i, j, execTime[i][j]);
-        }
-    }
-
     calculateAndPrintSpeedUp(execTime, SpeedUp, numbersOfThreadsRow, numbersOfThreadsCol);
 
     calculateAndPrintEfficiency(SpeedUp);
