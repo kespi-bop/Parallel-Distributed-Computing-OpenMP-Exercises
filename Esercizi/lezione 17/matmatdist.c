@@ -1,41 +1,6 @@
-/*lo pseudocodice grezzo è sugli appunti random*/
 #include <stdlib.h>
 #include <omp.h>
 #include <mpi.h>
-
-void matmatijk(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int i, j, k;
-    for (i = 0; i < N1; i++)
-    {
-        for (j = 0; j < N3; j++)
-        {
-            for (k = 0; k < N2; k++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatkji(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int k, j, i;
-    for (k = 0; k < N2; k++)
-    {
-        for (j = 0; j < N3; j++)
-        {
-            for (i = 0; i < N1; i++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
 
 void matmatikj(int ldA, int ldB, int ldC,
                double *A, double *B, double *C,
@@ -47,57 +12,6 @@ void matmatikj(int ldA, int ldB, int ldC,
         for (k = 0; k < N2; k++)
         {
             for (j = 0; j < N3; j++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatjik(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int j, i, k;
-    for (j = 0; j < N3; j++)
-    {
-        for (i = 0; i < N1; i++)
-        {
-            for (k = 0; k < N2; k++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatkij(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int k, i, j;
-    for (k = 0; k < N2; k++)
-    {
-        for (i = 0; i < N1; i++)
-        {
-            for (j = 0; j < N3; j++)
-            {
-                C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
-            }
-        }
-    }
-}
-
-void matmatjki(int ldA, int ldB, int ldC,
-               double *A, double *B, double *C,
-               int N1, int N2, int N3)
-{
-    int j, k, i;
-    for (j = 0; j < N3; j++)
-    {
-        for (k = 0; k < N2; k++)
-        {
-            for (i = 0; i < N1; i++)
             {
                 C[i * ldC + j] = C[i * ldC + j] + A[i * ldA + k] * B[k * ldB + j];
             }
@@ -141,7 +55,7 @@ void matmatthread(int ldA, int ldB, int ldC, double *A, double *B, double *C,
     }
 }
 
-matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *B, double *C, int N1, int N2, int N3, int DB1, int DB2, int DB3, int NTROW, int NTCOL)
+void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *B, double *C, int N1, int N2, int N3, int DB1, int DB2, int DB3, int NTROW, int NTCOL)
 {
     int i, j, k, c, r, elementIndex, griddims[2], gridperiods[2], coord[2], rowdir[2], coldir[2], k1, k2, k3, a, b, rowInBlockA, colInBlockB, rowcolInBlockBA, dimBlockAtoSend, dimBlockBtoSend;
     double *Acol, *Brow, ptrA, ptrB;
