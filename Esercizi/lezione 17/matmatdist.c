@@ -109,8 +109,8 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
 
     for (k = 0; k < k2; k++)
     {
-        c = k % N3;
-        r = k % N1;
+        c = k % k3;
+        r = k % k1;
 
         // preparo blocco A da spedire
         if (c == coord[1])
