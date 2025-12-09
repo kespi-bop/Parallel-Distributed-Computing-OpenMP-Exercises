@@ -57,19 +57,20 @@ void matmatthread(int ldA, int ldB, int ldC, double *A, double *B, double *C,
 
 void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *B, double *C, int N1, int N2, int N3, int DB1, int DB2, int DB3, int NTROW, int NTCOL)
 {
-    int i, j, k, c, r, elementIndex, griddims[2], gridperiods[2], coord[2], rowdir[2], coldir[2], k1, k2, k3, a, b, rowInBlockA, colInBlockB, rowcolInBlockBA, dimBlockAtoSend, dimBlockBtoSend;
-    double *Acol, *Brow, ptrA, ptrB;
+    int griddims[2], gridperiods[2], coord[2], rowdir[2], coldir[2];
+    int i, j, k, c, r, elementIndex, k1, k2, k3, a, b, rowInBlockA, colInBlockB, rowcolInBlockBA, dimBlockAtoSend, dimBlockBtoSend;
+    double *Acol, *Brow, *ptrA, *ptrB;
     MPI_Comm rowcomm, colcomm;
 
     MPI_Cart_get(Gridcom, 2, griddims, gridperiods, coord);
 
-    //creo canale di comunicazione per Bcast lungo la riga (quindi vario nelle colonne)
+    // creo canale di comunicazione per Bcast lungo la riga (quindi vario nelle colonne)
     rowdir[0] = 0;
     rowdir[1] = 1;
 
     MPI_Cart_sub(Gridcom, rowdir, &rowcomm);
 
-    //creo canale di comunicazione per Bcast lungo la colonna (quindi vario nelle righe)
+    // creo canale di comunicazione per Bcast lungo la colonna (quindi vario nelle righe)
     coldir[0] = 1;
     coldir[1] = 0;
 
@@ -147,8 +148,8 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
         MPI_Bcast(Brow, dimBlockBtoSend, MPI_DOUBLE, r, colcomm);
 
         // ricevo in blocco A e blocco B in Acol e Brow
-        void matmatthread(rowcolInBlockBA, colInBlockB, LDC, Acol, Brow, C,
-                          rowInBlockA, rowcolInBlockBA, colInBlockB, DB1, DB2, DB3, NTROW, NTCOL);
+        matmatthread(rowcolInBlockBA, colInBlockB, LDC, Acol, Brow, C,
+                     rowInBlockA, rowcolInBlockBA, colInBlockB, DB1, DB2, DB3, NTROW, NTCOL);
     }
 
     free(Acol);
