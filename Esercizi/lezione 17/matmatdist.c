@@ -120,6 +120,7 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
             {
                 for (j = 0; j < rowcolInBlockBA; j++)
                 {
+                    //BISOGNA FARE LDA FRATTO IL N PROCESSI(?)
                     Acol[elementIndex] = ptrA[i * LDA + j];
                     elementIndex++;
                 }
@@ -134,7 +135,8 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
             for (i = 0; i < rowcolInBlockBA; i++)
             {
                 for (j = 0; j < colInBlockB; j++)
-                {
+                {  
+                    //BISOGNA FARE LDB FRATTO IL N PROCESSI(?)
                     Brow[elementIndex] = ptrB[i * LDB + j];
                     elementIndex++;
                 }
