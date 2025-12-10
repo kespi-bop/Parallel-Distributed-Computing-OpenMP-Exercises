@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#PBS -N matmatdist
+#PBS -q studenti
+#PBS -l nodes=8:ppn=8
+#PBS -l cput=00:30:00
+#PBS -l walltime=00:05:00
+#PBS -o matmatdist.out
+#PSB -l mem=1GB
+#PBS -e matmatdist.err
+
+echo ================================
+
+cd $PBS_O_WORKDIR
+echo "pulisco working directory e' "
+pwd
+
+rm matmatdist.err matmatdist.out
+
+sort -u $PBS_NODEFILE › machinefile
+
+NCPU=$(wc -l < machinefile)
+
+echo "Il job e' in esecuzione sulle seguenti " $NCPU " nodi:"
+cat machinefile
+
+echo ================================
+
+MPI_DIR=/usr/lib64/openmpi/1.4-gcc/bin
+echo "la directory di MPI e' " $MPI DIR
+$MPI_DIR/mpicc main.c matmatdist.c c_timer.c -O3 -fopenmp -lm -o matmatdist
+
+echo ================================
+
+$MPI_DIR/mpiexec -np 1 -machinefile machinefile matmatdist
+$MPI_DIR/mpiexec -np 2 -machinefile machinefile matmatdist
+$MPI_DIR/mpiexec -np 4 -machinefile machinefile matmatdist
+$MPI_DIR/mpiexec -np 8 -machinefile machinefile matmatdist
