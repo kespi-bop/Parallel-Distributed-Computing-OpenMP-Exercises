@@ -57,12 +57,12 @@ void matmatthread(int ldA, int ldB, int ldC, double *A, double *B, double *C,
 
 void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *B, double *C, int N1, int N2, int N3, int DB1, int DB2, int DB3, int NTROW, int NTCOL)
 {
-    int griddims[2], gridperiods[2], coord[2], rowdir[2], coldir[2];
+    int griddims[2], gridnodes[2], coords[2], rowdir[2], coldir[2];
     int i, j, k, c, r, elementIndex, k1, k2, k3, a, b, rowInBlockA, colInBlockB, rowcolInBlockBA, dimBlockAtoSend, dimBlockBtoSend;
-    double *Acol, *Brow, *ptrA, *ptrB;
+    double *blockA, *blockB, *ptrA, *ptrB;
     MPI_Comm rowcomm, colcomm;
 
-    MPI_Cart_get(Gridcom, 2, griddims, gridperiods, coord);
+    MPI_Cart_get(Gridcom, 2, griddims, gridnodes, coords);
 
     // creo canale di comunicazione per Bcast lungo la riga (quindi vario nelle colonne)
     rowdir[0] = 0;
@@ -92,7 +92,7 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
     // calcolo del mcm tra k1 e k3 per avere k2
     k2 = (k1 * k3) / a;
 
-    // quante righe e col ci sono nei blocchi (necessario per poter calcolare la dimensione dei blocchi)
+    // quante righe e col ci sono nei blocchi A e B(necessario per poter calcolare la dimensione dei blocchi)
     rowInBlockA = N1 / k1;
     colInBlockB = N3 / k3;
     rowcolInBlockBA = N2 / k2;
@@ -101,8 +101,8 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
     dimBlockAtoSend = rowInBlockA * rowcolInBlockBA;
     dimBlockBtoSend = rowcolInBlockBA * colInBlockB;
 
-    Acol = (double *)malloc(sizeof(double) * dimBlockAtoSend);
-    Brow = (double *)malloc(sizeof(double) * dimBlockBtoSend);
+    blockA = (double *)malloc(sizeof(double) * dimBlockAtoSend);
+    blockB = (double *)malloc(sizeof(double) * dimBlockBtoSend);
 
     ptrA = A;
     ptrB = B;
@@ -113,15 +113,14 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
         r = k % k1;
 
         // preparo blocco A da spedire
-        if (c == coord[1])
+        if (c == coords[1])
         {
             elementIndex = 0;
             for (i = 0; i < rowInBlockA; i++)
             {
                 for (j = 0; j < rowcolInBlockBA; j++)
                 {
-                    //BISOGNA FARE LDA FRATTO IL N PROCESSI(?)
-                    Acol[elementIndex] = ptrA[i * LDA + j];
+                    blockA[elementIndex] = ptrA[i * LDA + j];
                     elementIndex++;
                 }
             }
@@ -129,15 +128,14 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
         }
 
         // preparo blocco A da spedire
-        if (r == coord[0])
+        if (r == coords[0])
         {
             elementIndex = 0;
             for (i = 0; i < rowcolInBlockBA; i++)
             {
                 for (j = 0; j < colInBlockB; j++)
                 {  
-                    //BISOGNA FARE LDB FRATTO IL N PROCESSI(?)
-                    Brow[elementIndex] = ptrB[i * LDB + j];
+                    blockB[elementIndex] = ptrB[i * LDB + j];
                     elementIndex++;
                 }
             }
@@ -145,15 +143,15 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
         }
 
         // Bcast A lungo la riga i
-        MPI_Bcast(Acol, dimBlockAtoSend, MPI_DOUBLE, c, rowcomm);
+        MPI_Bcast(blockA, dimBlockAtoSend, MPI_DOUBLE, c, rowcomm);
         // Bcarst B lungo la colonna j
-        MPI_Bcast(Brow, dimBlockBtoSend, MPI_DOUBLE, r, colcomm);
+        MPI_Bcast(blockB, dimBlockBtoSend, MPI_DOUBLE, r, colcomm);
 
-        // ricevo in blocco A e blocco B in Acol e Brow
-        matmatthread(rowcolInBlockBA, colInBlockB, LDC, Acol, Brow, C,
+        // ricevo il blocco A e blocco B in blockA e blockB
+        matmatthread(rowcolInBlockBA, colInBlockB, LDC, blockA, blockB, C,
                      rowInBlockA, rowcolInBlockBA, colInBlockB, DB1, DB2, DB3, NTROW, NTCOL);
     }
 
-    free(Acol);
-    free(Brow);
+    free(blockA);
+    free(blockB);
 }
