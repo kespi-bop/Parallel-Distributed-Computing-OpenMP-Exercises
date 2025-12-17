@@ -116,6 +116,7 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
         if (c == coords[1])
         {
             elementIndex = 0;
+
             for (i = 0; i < rowInBlockA; i++)
             {
                 for (j = 0; j < rowcolInBlockBA; j++)
@@ -127,10 +128,11 @@ void matmatdist(MPI_Comm Gridcom, int LDA, int LDB, int LDC, double *A, double *
             ptrA = ptrA + rowcolInBlockBA;
         }
 
-        // preparo blocco A da spedire
+        // preparo blocco B da spedire
         if (r == coords[0])
         {
             elementIndex = 0;
+            
             for (i = 0; i < rowcolInBlockBA; i++)
             {
                 for (j = 0; j < colInBlockB; j++)
